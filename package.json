@@ -1,0 +1,22 @@
+{
+  "name": "mini_chat_app",
+  "version": "1.0.0",
+  "description": "A real time chat application",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"yarn start:client\" \"yarn start:server\"",
+    "begin": "concurrently \"yarn begin:client\" \"yarn begin:server\"",
+    "rm": "concurrently \"yarn rm:client\" \"yarn rm:server\" && rm -rf node_modules && rm -rf package-lock.json && rm -rf yarn.lock",
+    "start:server": "cd server && yarn start",
+    "start:client": "cd client && yarn start",
+    "begin:server": "cd server && yarn install",
+    "begin:client": "cd client && yarn install",
+    "rm:server": "cd server && rm -rf node_modules && rm -rf package-lock.json && rm -rf yarn.lock",
+    "rm:client": "cd client && rm -rf node_modules && rm -rf package-lock.json && rm -rf yarn.lock"
+  },
+  "author": "Ayoub YOUB",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^6.0.1"
+  }
+}
