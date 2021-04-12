@@ -71,7 +71,6 @@ module.exports = {
         throw new Error(err);
       }
     },
-    // toggles liking/unliking post
     async likePost(_, { postId }, context) {
       console.log("like post");
       const user = checkAuth(context);
