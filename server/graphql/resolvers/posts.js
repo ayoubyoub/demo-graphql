@@ -6,7 +6,6 @@ const checkAuth = require("../../utils/check-auth");
 module.exports = {
   Query: {
     async getPosts() {
-      console.log("get posts");
       try {
         const posts = await Post.find({}).sort({ createdAt: -1 });
         return posts;
@@ -22,6 +21,17 @@ module.exports = {
         } else {
           throw new Error("Post not found");
         }
+      } catch (err) {
+        throw new Error(err);
+      }
+    },
+    async getMyPosts(_, args, context) {
+      try {
+        const user = await checkAuth(context);
+        const posts = await Post.find({ username: user.username }).sort({
+          createdAt: -1,
+        });
+        return posts;
       } catch (err) {
         throw new Error(err);
       }

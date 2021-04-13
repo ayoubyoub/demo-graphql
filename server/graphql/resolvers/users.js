@@ -1,11 +1,14 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
 const {
   validateRegisterInput,
   validateLoginInput,
+  validateUpdateUserInput,
 } = require("../../utils/validators");
 const User = require("../../models/User");
+const checkAuth = require("../../utils/check-auth");
+const { transport, htmlEmail } = require("../../helpers/mail");
+
 const { UserInputError } = require("apollo-server");
 
 function generateToken(user) {
@@ -21,6 +24,16 @@ function generateToken(user) {
 }
 
 module.exports = {
+  Query: {
+    async getUser(_, args, context) {
+      try {
+        const user = await checkAuth(context);
+        return user;
+      } catch (err) {
+        throw new Error(err);
+      }
+    },
+  },
   Mutation: {
     async login(_, { username, password }) {
       const { errors, valid } = validateLoginInput(username, password);
@@ -73,6 +86,23 @@ module.exports = {
           },
         });
       }
+      // Create a email verification token
+      let emailVerifiedToken = Math.random().toString(36).substring(2, 15);
+      emailVerifiedToken += Math.random().toString(36).substring(2, 15);
+
+      // Send an email (in the background) containing the verification token
+      try {
+        transport.sendMail({
+          from: process.env.MAIL_FROM,
+          to: email,
+          subject: "Please verify your email address",
+          html: htmlEmail(`This is your verification token:
+    \n\n
+    ${emailVerifiedToken}`),
+        });
+      } catch (err) {
+        console.log(err);
+      }
       // TODO: Hash the password before it's stored in our DB create an auth token
       password = await bcrypt.hash(password, 12);
       const newUser = new User({
@@ -88,6 +118,63 @@ module.exports = {
         id: res._id,
         token,
       };
+    },
+    async updateUser(_, { email, password }, context) {
+      const username = await checkAuth(context).username;
+      // TODO: Validate user data
+      const { valid, errors } = validateUpdateUserInput(email, password);
+      if (!valid) {
+        throw new UserInputError("Errors", { errors });
+      }
+      // TODO: Hash the password before it's stored in our DB create an auth token
+      password = await bcrypt.hash(password, 12);
+      // Update user
+      const user = await User.findOneAndUpdate(
+        { username },
+        {
+          email,
+          password,
+          updatedAt: new Date().toISOString(),
+        },
+        { new: true }
+      );
+      return user;
+    },
+    async forgotPassword(_, { email }) {
+      // Ensure user exists
+      const user = await User.findOne({ email });
+      if (!user)
+        throw new Error("You're not authorized to reset this password");
+
+      // Create a 'reset token' + expiry time and add to the DB
+      let resetToken = Math.random().toString(36).substring(2, 15);
+      resetToken += Math.random().toString(36).substring(2, 15);
+      const resetTokenExpires = Date.now() + 3600000; // 1 hour from now
+
+      await User.findOneAndUpdate(
+        { username: user.username },
+        {
+          resetTokenExpires,
+        },
+        { new: true }
+      );
+
+      // Send an email (in the background) containing the token
+      try {
+        transport.sendMail({
+          from: process.env.MAIL_FROM,
+          to: user.email,
+          subject: "Your Password Reset Token",
+          html: htmlEmail(`This is your password reset token!
+          \n\n
+          ${resetToken}`),
+        });
+      } catch (err) {
+        console.log(err);
+      }
+
+      // Return the a success
+      return { message: "Email sent" };
     },
   },
 };

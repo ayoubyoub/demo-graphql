@@ -6,7 +6,9 @@ const userSchema = new Schema({
   username: String,
   password: String,
   email: String,
+  resetTokenExpires: Number,
   createdAt: String,
+  updatedAt: String,
 });
 
 module.exports = model("User", userSchema);

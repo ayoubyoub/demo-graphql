@@ -9,6 +9,7 @@ module.exports = {
     commentCount: (parent) => parent.comments.length,
   },
   Query: {
+    ...usersResolvers.Query,
     ...postsResolvers.Query,
   },
   Mutation: {
