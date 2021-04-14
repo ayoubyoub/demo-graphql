@@ -126,7 +126,6 @@ export default function SinglePost(props) {
                 </Card.Content>
               </Card>
             )}
-            {/* TODO: look into separating comments into it's own component */}
             {comments.map((comment) => {
               return (
                 <Card fluid key={comment.id}>

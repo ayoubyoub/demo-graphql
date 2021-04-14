@@ -39,10 +39,7 @@ module.exports = {
   },
   Mutation: {
     async createPost(_, { body }, context) {
-      console.log("create post");
       const user = checkAuth(context);
-      console.log(user);
-
       if (body.trim() === "") {
         throw new Error("Post body must not be empty");
       }
@@ -53,9 +50,7 @@ module.exports = {
         username: user.username,
         createdAt: new Date().toISOString(),
       });
-
       const post = await newPost.save();
-
       // return new post. applies to subscription type
       context.pubsub.publish("NEW_POST", {
         newPost: post,
@@ -64,9 +59,7 @@ module.exports = {
       return post;
     },
     async deletePost(_, { postId }, context) {
-      console.log("delete post");
       const user = checkAuth(context);
-
       // we need to check that the user is deleting their own post
       try {
         // first find post
@@ -82,9 +75,7 @@ module.exports = {
       }
     },
     async likePost(_, { postId }, context) {
-      console.log("like post");
       const user = checkAuth(context);
-
       const post = await Post.findById(postId);
       if (post) {
         // check if we've liked the post already or not
@@ -108,8 +99,6 @@ module.exports = {
   },
   Subscription: {
     newPost: {
-      // array function version
-      // all caps is convention for this 'event type thing'
       subscribe: (_, __, { pubsub }) => pubsub.asyncIterator("NEW_POST"),
     },
   },

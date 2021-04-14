@@ -23,7 +23,6 @@ export default function Register(props) {
   const [addUser, { loading }] = useMutation(REGISTER_USER, {
     // update is triggered if the mutation is successfully executed
     update(_, result) {
-      console.log(result);
       context.login(result.data.register);
       // redirect to homepage after successfully executing mutation
       props.history.push("/");

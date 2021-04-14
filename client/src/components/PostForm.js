@@ -17,7 +17,6 @@ export default function PostForm() {
       console.log(err.graphQLErrors);
     },
     update(proxy, result) {
-      console.log(result);
       // fetch posts from client data in cache. all the data in our cache is in our data variable now. you can view the cache using apollo dev tools
       const data = proxy.readQuery({
         query: FETCH_POSTS_QUERY,

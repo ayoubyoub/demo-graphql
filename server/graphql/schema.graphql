@@ -26,7 +26,10 @@ type User {
   username: String!
   createdAt: String!
   updatedAt: String!
+  resetToken: String
   resetTokenExpires: Float
+  emailVerified: Boolean
+  emailVerifiedToken: String
 }
 type SuccessMessage {
   message: String
@@ -44,10 +47,14 @@ type Query {
   getPost(postId: ID!): Post
 }
 type Mutation {
+  # USER
   register(registerInput: RegisterInput): User!
   login(username: String!, password: String!): User!
   updateUser(email: String, password: String): User!
   forgotPassword(email: String!): SuccessMessage
+  resetPassword(resetToken: String!, password: String!): User!
+  verifyEmail(emailVerifiedToken: String!): User!
+  # POST
   createPost(body: String!): Post!
   deletePost(postId: ID!): String!
   createComment(postId: ID!, body: String!): Post!

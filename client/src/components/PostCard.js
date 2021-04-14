@@ -29,7 +29,6 @@ export default function PostCard({
       </Card.Content>
       <Card.Content extra>
         <LikeButton user={context.user} post={{ id, likes, likeCount }} />
-        {/* TODO: perhaps make separate comment button component */}
         <MyPopup content="Comment on post">
           <Button
             color="blue"
